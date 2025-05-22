@@ -1,0 +1,227 @@
+# Command Template Configuration
+# Defines secure, parameterized command templates for execution
+
+templates:
+  # File system operations
+  list_files:
+    command: "ls {options} {path}"
+    description: "List directory contents"
+    category: "filesystem"
+    parameters:
+      path:
+        type: "path"
+        required: true
+        description: "Directory path to list"
+        allowed_paths:
+          - "/tmp"
+          - "/home"
+          - "/var/log"
+        forbidden_paths:
+          - "/etc"
+          - "/root"
+          - "/sys"
+      options:
+        type: "enum"
+        required: false
+        default: "-la"
+        description: "ls command options"
+        allowed_values:
+          - "-l"
+          - "-la"
+          - "-lh"
+          - "-lt"
+          - "-ltr"
+    permissions:
+      required_scopes: ["file:read"]
+    timeout: 30
+    allow_network: false
+    allow_file_write: false
+
+  check_disk_usage:
+    command: "df {options}"
+    description: "Check disk usage"
+    category: "system"
+    parameters:
+      options:
+        type: "enum"
+        required: false
+        default: "-h"
+        description: "df command options"
+        allowed_values:
+          - "-h"
+          - "-H"
+          - "-k"
+          - "-m"
+    permissions:
+      required_scopes: ["system:read"]
+    timeout: 15
+    allow_network: false
+    allow_file_write: false
+
+  show_processes:
+    command: "ps {options}"
+    description: "Show running processes"
+    category: "system"
+    parameters:
+      options:
+        type: "enum"
+        required: false
+        default: "aux"
+        description: "ps command options"
+        allowed_values:
+          - "aux"
+          - "ef"
+          - "-el"
+          - "-ely"
+    permissions:
+      required_scopes: ["system:read"]
+    timeout: 15
+    allow_network: false
+    allow_file_write: false
+
+  show_memory_usage:
+    command: "free {options}"
+    description: "Show memory usage"
+    category: "system"
+    parameters:
+      options:
+        type: "enum"
+        required: false
+        default: "-h"
+        description: "free command options"
+        allowed_values:
+          - "-h"
+          - "-m"
+          - "-g"
+          - "-k"
+    permissions:
+      required_scopes: ["system:read"]
+    timeout: 10
+    allow_network: false
+    allow_file_write: false
+
+  ping_host:
+    command: "ping -c {count} {hostname}"
+    description: "Ping a hostname"
+    category: "network"
+    parameters:
+      hostname:
+        type: "string"
+        required: true
+        description: "Hostname or IP address to ping"
+        pattern: "^[a-zA-Z0-9.-]+$"
+        max_length: 253
+      count:
+        type: "int"
+        required: false
+        default: 4
+        description: "Number of ping packets"
+        min_value: 1
+        max_value: 10
+    permissions:
+      required_scopes: ["network:ping"]
+    timeout: 30
+    allow_network: true
+    allow_file_write: false
+
+  check_port:
+    command: "nc -zv {hostname} {port}"
+    description: "Check if a port is open"
+    category: "network"
+    parameters:
+      hostname:
+        type: "string"
+        required: true
+        description: "Hostname or IP address"
+        pattern: "^[a-zA-Z0-9.-]+$"
+        max_length: 253
+      port:
+        type: "int"
+        required: true
+        description: "Port number to check"
+        min_value: 1
+        max_value: 65535
+    permissions:
+      required_scopes: ["network:scan"]
+    timeout: 10
+    allow_network: true
+    allow_file_write: false
+
+  view_file:
+    command: "cat {filepath}"
+    description: "View file contents"
+    category: "filesystem"
+    parameters:
+      filepath:
+        type: "path"
+        required: true
+        description: "File path to view"
+        allowed_paths:
+          - "/tmp"
+          - "/var/log"
+          - "/home"
+        forbidden_paths:
+          - "/etc/passwd"
+          - "/etc/shadow"
+          - "/root"
+    permissions:
+      required_scopes: ["file:read"]
+    timeout: 30
+    allow_network: false
+    allow_file_write: false
+
+  search_logs:
+    command: "grep {pattern} {logfile}"
+    description: "Search in log files"
+    category: "logs"
+    parameters:
+      pattern:
+        type: "string"
+        required: true
+        description: "Search pattern"
+        max_length: 100
+        pattern: "^[a-zA-Z0-9._-]+$"
+      logfile:
+        type: "path"
+        required: true
+        description: "Log file to search"
+        allowed_paths:
+          - "/var/log"
+          - "/tmp"
+    permissions:
+      required_scopes: ["logs:read"]
+    timeout: 60
+    allow_network: false
+    allow_file_write: false
+
+  system_uptime:
+    command: "uptime"
+    description: "Show system uptime"
+    category: "system"
+    parameters: {}
+    permissions:
+      required_scopes: ["system:read"]
+    timeout: 5
+    allow_network: false
+    allow_file_write: false
+
+  show_date:
+    command: "date {format}"
+    description: "Show current date and time"
+    category: "system"
+    parameters:
+      format:
+        type: "enum"
+        required: false
+        default: ""
+        description: "Date format option"
+        allowed_values:
+          - ""
+          - "+%Y-%m-%d"
+          - "+%Y-%m-%d %H:%M:%S"
+          - "+%s"
+    permissions:
+      required_scopes: ["system:read"]
+    timeout: 5
+    allow_network: false
+    allow_file_write: false
